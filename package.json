@@ -14,9 +14,12 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.9.2"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2",
+    "nodemailer": "^6.9.16"
   },
   "devDependencies": {
     "eslint": "^9.17.0",
