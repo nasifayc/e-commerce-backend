@@ -8,6 +8,7 @@ const UserSchema = mongoose.Schema(
     password: { type: String, required: true },
     profile_picture: {
       type: String,
+      default: null,
     },
     otp: String,
     otpValidated: {
@@ -29,7 +30,7 @@ UserSchema.pre("save", async function (next) {
 
   try {
     const salt = await bcrypt.genSalt(10); // Generate salt
-    this.password = await bcrypt.hash(this.password, salt); // Hash the password
+    this.password = bcrypt.hash(this.password, salt); // Hash the password
     next();
   } catch (err) {
     next(err);
