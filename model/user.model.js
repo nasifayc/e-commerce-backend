@@ -59,7 +59,7 @@ UserSchema.methods.validateOtp = function (inputOtp) {
     return false;
   }
   this.otpValidated = true;
-  this.otp = null; // Clear OTP after validation
+  this.otp = null;
   this.otpExpiry = null;
   return true;
 };
