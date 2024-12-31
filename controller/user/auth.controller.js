@@ -100,11 +100,12 @@ export const validateOtp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
+  console.log("reached here");
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ message: "Invalid email or  password" });
     }
 
     const isPasswordValid = await user.comparePassword(password);

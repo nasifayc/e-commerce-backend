@@ -1,15 +1,15 @@
 import { Router } from "express";
+import { signIn, signUp } from "../../controller/user/auth.controller.js";
+import {
+  validateSignIn,
+  validateSignUp,
+  handleValidationErrors,
+} from "../../middleware/expressValidator.js";
 
 const router = Router();
 
-router.post("/sign-in", (req, res) => {
-  console.log("Sign-in user");
-  res.json({ message: "User signed in successfully" });
-});
+router.post("/sign-in", validateSignIn, handleValidationErrors, signIn);
 
-router.post("/sign-up", (req, res) => {
-  console.log("Sign-up user");
-  res.json({ message: "User signed up successfully" });
-});
+router.post("/sign-up", validateSignUp, handleValidationErrors, signUp);
 
 export default router;
