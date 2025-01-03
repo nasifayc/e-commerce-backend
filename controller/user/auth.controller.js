@@ -15,25 +15,11 @@ const generateRefreshToken = (user) => {
   });
 };
 
-export const signUp = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+const registerUser = async (user) => {
+  const otp = user.generateOtp();
+  await user.save();
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already in use." });
-    }
-
-    const newUser = new User({
-      username,
-      email,
-      password,
-    });
-
-    const otp = newUser.generateOtp();
-    await newUser.save();
-
-    const otpMessage = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+  const otpMessage = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
         <h2 style="color: #4CAF50;">Welcome to Our Service!</h2>
         <p>Dear User,</p>
         <p>Thank you for registering with us. Please use the following OTP code to complete your registration:</p>
@@ -46,16 +32,62 @@ export const signUp = async (req, res) => {
         <p>Best regards,<br>The Support Team</p>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
         <footer style="text-align: center; color: #999; font-size: 12px;">
-          © ${new Date().getFullYear()} Our Company, Inc. All rights reserved.
+          © ${new Date().getFullYear()} Yegna E-commrece, Inc. All rights reserved.
         </footer>
       </div>`;
 
-    await sendEmail(email, "Your OTP is here", otpMessage);
+  await sendEmail(user.email, "Your OTP is here", otpMessage);
 
-    res.status(201).json({
-      message:
-        "OTP sent to your email. Please verify to complete registration.",
+  res.status(201).json({
+    message: "OTP sent to your email. Please verify to complete registration.",
+    user: user.toJSON(),
+  });
+};
+
+export const signUp = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      if (existingUser.otpValidated) {
+        return res.status(400).json({ message: "Email already in use." });
+      } else {
+        if (existingUser.otpExpiry > new Date()) {
+          return existingUser;
+        } else {
+          const isPasswordValid = await existingUser.comparePassword(password);
+
+          if (!isPasswordValid) {
+            return res
+              .status(400)
+              .json({ message: "User Found But, Invalid email or  password" });
+          }
+
+          await registerUser(existingUser);
+          return;
+          // const accessToken = generateAccessToken(existingUser);
+          // const refreshToken = generateRefreshToken(existingUser);
+
+          // res.cookies("refreshToken", refreshToken, {
+          //   httpOnly: true,
+          //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days expiry for refresh token
+          // });
+
+          // return res
+          //   .status(200)
+          //   .json({ user: existingUser.toJSON(), accessToken });
+        }
+      }
+    }
+
+    const newUser = new User({
+      username,
+      email,
+      password,
     });
+
+    await registerUser(newUser);
   } catch (e) {
     res.status(500).json({
       message: "Error registering user.",
@@ -67,6 +99,11 @@ export const signUp = async (req, res) => {
 export const validateOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required." });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not found." });
@@ -78,8 +115,8 @@ export const validateOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP." });
     }
 
-    const accessToken = generateAccessToken(newUser);
-    const refreshToken = generateRefreshToken(newUser);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,

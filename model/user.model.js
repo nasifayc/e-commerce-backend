@@ -43,16 +43,17 @@ UserSchema.methods.comparePassword = async function (inputPassword) {
 };
 
 // Generate OTP for email/phone verification
-UserSchema.methods.generateOtp = function () {
+UserSchema.methods.generateOtp = async function () {
   const otp = Math.floor(1000 + Math.random() * 9000); // 4-digit OTP
-  this.otp = otp.toString();
+  const salt = await bcrypt.genSalt(10);
+  this.otp = bcrypt.hash(otp.toString(), salt);
   this.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
   return otp;
 };
 
 // Validate OTP
 UserSchema.methods.validateOtp = function (inputOtp) {
-  if (this.otp !== inputOtp) {
+  if (bcrypt.compare(inputOtp, this.otp)) {
     return false;
   }
   if (this.otpExpiry < Date.now()) {

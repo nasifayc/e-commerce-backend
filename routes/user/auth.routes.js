@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { signIn, signUp } from "../../controller/user/auth.controller.js";
+import {
+  signIn,
+  signUp,
+  validateOtp,
+} from "../../controller/user/auth.controller.js";
 import {
   validateSignIn,
   validateSignUp,
@@ -11,5 +15,7 @@ const router = Router();
 router.post("/sign-in", validateSignIn, handleValidationErrors, signIn);
 
 router.post("/sign-up", validateSignUp, handleValidationErrors, signUp);
+
+router.post("/verify-otp", validateOtp);
 
 export default router;
