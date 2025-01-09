@@ -15,10 +15,7 @@ const generateRefreshToken = (user) => {
   });
 };
 
-const registerUser = async (user) => {
-  const otp = user.generateOtp();
-  await user.save();
-
+const sendMail = async (email, otp) => {
   const otpMessage = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
         <h2 style="color: #4CAF50;">Welcome to Our Service!</h2>
         <p>Dear User,</p>
@@ -36,17 +33,13 @@ const registerUser = async (user) => {
         </footer>
       </div>`;
 
-  await sendEmail(user.email, "Your OTP is here", otpMessage);
-
-  res.status(201).json({
-    message: "OTP sent to your email. Please verify to complete registration.",
-    user: user.toJSON(),
-  });
+  await sendEmail(email, "Your OTP is here", otpMessage);
 };
 
 export const signUp = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    console.log("Username: " + username);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -54,7 +47,9 @@ export const signUp = async (req, res) => {
         return res.status(400).json({ message: "Email already in use." });
       } else {
         if (existingUser.otpExpiry > new Date()) {
-          return existingUser;
+          return res
+            .status(400)
+            .json({ message: "User Found But, Otp is not Validated" });
         } else {
           const isPasswordValid = await existingUser.comparePassword(password);
 
@@ -63,35 +58,42 @@ export const signUp = async (req, res) => {
               .status(400)
               .json({ message: "User Found But, Invalid email or  password" });
           }
+          const otp = await existingUser.generateOtp();
+          console.log("OTP: " + otp);
+          await existingUser.save();
 
-          await registerUser(existingUser);
-          return;
-          // const accessToken = generateAccessToken(existingUser);
-          // const refreshToken = generateRefreshToken(existingUser);
+          const { email } = existingUser;
 
-          // res.cookies("refreshToken", refreshToken, {
-          //   httpOnly: true,
-          //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days expiry for refresh token
-          // });
-
-          // return res
-          //   .status(200)
-          //   .json({ user: existingUser.toJSON(), accessToken });
+          await sendMail(email, otp);
+          res.status(201).json({
+            message:
+              "OTP sent to your email. Please verify to complete registration.",
+            user: existingUser.toJSON(),
+          });
         }
       }
+    } else {
+      const newUser = new User({
+        username,
+        email,
+        password,
+      });
+
+      const otp = await newUser.generateOtp();
+      console.log("OTP: " + otp);
+      await newUser.save();
+
+      await sendMail(email, otp);
+      res.status(201).json({
+        message:
+          "OTP sent to your email. Please verify to complete registration.",
+        user: newUser.toJSON(),
+      });
     }
-
-    const newUser = new User({
-      username,
-      email,
-      password,
-    });
-
-    await registerUser(newUser);
   } catch (e) {
     res.status(500).json({
-      message: "Error registering user.",
-      error: error.message,
+      message: `Error registering user: ${e.message}`,
+      error: e.message,
     });
   }
 };
@@ -99,6 +101,7 @@ export const signUp = async (req, res) => {
 export const validateOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
+    console.log(`email: ${email}, otp: ${otp}`);
 
     if (!email || !otp) {
       return res.status(400).json({ message: "Email and OTP are required." });
@@ -109,11 +112,12 @@ export const validateOtp = async (req, res) => {
       return res.status(400).json({ message: "User not found." });
     }
 
-    const isOtpValid = user.validateOtp(otp);
+    const isOtpValid = await user.validateOtp(otp);
 
     if (!isOtpValid) {
       return res.status(400).json({ message: "Invalid or expired OTP." });
     }
+    await user.save();
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -124,7 +128,6 @@ export const validateOtp = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Registration completed successfully.",
       user: user.toJSON(),
       accessToken,
     });
@@ -145,6 +148,10 @@ export const signIn = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or  password" });
     }
 
+    if (!user.otpValidated) {
+      return res.status(400).json({ message: "OTP Validation Required" });
+    }
+
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
@@ -154,16 +161,17 @@ export const signIn = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookies("refreshToken", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days expiry for refresh token
     });
 
     res.status(200).json({ user: user.toJSON(), accessToken });
   } catch (e) {
+    console.log(e.message);
     res.status(500).json({
-      message: "Error signing in user.",
-      error: error.message,
+      message: `Error signing in user. ${e.message}`,
+      error: e.message,
     });
   }
 };

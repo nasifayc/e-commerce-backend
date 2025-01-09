@@ -13,32 +13,6 @@ const All_Permissions = [
     user_type: ["ADMIN"],
   },
 
-  //AD
-  {
-    model: "Ad",
-    code_name: "can_view_ad",
-    description: "can view ad",
-    user_type: ["ADMIN"],
-  },
-  {
-    model: "Ad",
-    code_name: "can_create_ad",
-    description: "can create ad",
-    user_type: ["ADMIN"],
-  },
-  {
-    model: "Ad",
-    code_name: "can_update_ad",
-    description: "can update ad",
-    user_type: ["ADMIN"],
-  },
-  {
-    model: "Ad",
-    code_name: "can_delete_ad",
-    description: "can delete ad",
-    user_type: ["ADMIN"],
-  },
-
   //user
   {
     model: "User",

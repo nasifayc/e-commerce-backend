@@ -30,7 +30,7 @@ UserSchema.pre("save", async function (next) {
 
   try {
     const salt = await bcrypt.genSalt(10); // Generate salt
-    this.password = bcrypt.hash(this.password, salt); // Hash the password
+    this.password = await bcrypt.hash(this.password, salt); // Hash the password
     next();
   } catch (err) {
     next(err);
@@ -46,22 +46,29 @@ UserSchema.methods.comparePassword = async function (inputPassword) {
 UserSchema.methods.generateOtp = async function () {
   const otp = Math.floor(1000 + Math.random() * 9000); // 4-digit OTP
   const salt = await bcrypt.genSalt(10);
-  this.otp = bcrypt.hash(otp.toString(), salt);
+  this.otp = await bcrypt.hash(otp.toString(), salt);
   this.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
   return otp;
 };
 
 // Validate OTP
-UserSchema.methods.validateOtp = function (inputOtp) {
-  if (bcrypt.compare(inputOtp, this.otp)) {
+UserSchema.methods.validateOtp = async function (inputOtp) {
+  const enteredOtp = inputOtp.join("");
+  console.log("Entered Otp", +enteredOtp);
+  const isValid = await bcrypt.compare(enteredOtp, this.otp);
+  console.log(`IsOtpValided: ${isValid}`);
+
+  if (!isValid) {
     return false;
   }
+
   if (this.otpExpiry < Date.now()) {
     return false;
   }
   this.otpValidated = true;
   this.otp = null;
   this.otpExpiry = null;
+
   return true;
 };
 
