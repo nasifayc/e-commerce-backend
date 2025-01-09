@@ -1,4 +1,4 @@
-const All_Permissions = [
+export const All_Permissions = [
   {
     model: "Role",
     code_name: "can_view_users_module",
@@ -201,5 +201,3 @@ const All_Permissions = [
     user_type: ["ADMIN"],
   },
 ];
-
-export default { All_Permissions };

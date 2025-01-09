@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const PermissionSchema = mongoose.Schema(
   {
     model: { type: String },
@@ -28,12 +29,12 @@ const RoleSchema = mongoose.Schema(
     },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Admin",
       required: [true, "Creater user is required"],
     },
     updated_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Admin",
     },
   },
   { timestamps: true }

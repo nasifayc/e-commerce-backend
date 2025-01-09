@@ -1,4 +1,6 @@
 import Admin from "../../model/admin.model.js";
+import RolePermission from "../../model/role.model.js";
+import { All_Permissions } from "../permissions.js";
 import db from "../database.js";
 
 export const createSuperAdmin = async (admin) => {
@@ -28,5 +30,35 @@ export const createSuperAdmin = async (admin) => {
     process.exit(1);
   } finally {
     db.connection.close();
+  }
+};
+export const createPermission = async () => {
+  const { Permission } = RolePermission;
+  await db();
+  console.log("Creating Permissions...");
+
+  for (const permission of All_Permissions) {
+    try {
+      const existingPermission = await Permission.findOne({
+        code_name: permission.code_name,
+      });
+
+      if (!existingPermission) {
+        const newPermission = await Permission.create(permission);
+        console.dir(
+          `Permission Inserted Successfully - ${newPermission.description}`,
+          { colors: true }
+        );
+      } else {
+        console.log(
+          `Permission already exists - ${existingPermission.description}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        `Error processing permission (${permission.description}): ${error}`
+      );
+      process.exit(1);
+    }
   }
 };

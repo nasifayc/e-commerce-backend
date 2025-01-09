@@ -1,8 +1,14 @@
 import { Command } from "commander";
 import inquirer from "inquirer";
-import { createSuperAdmin } from "./index.js";
+import { createSuperAdmin, createPermission } from "./index.js";
 
 const program = new Command();
+
+program
+  .command("createpermission")
+  .alias("p")
+  .description("Add Permission")
+  .action(() => createPermission());
 
 program
   .command("createsuperuser")
