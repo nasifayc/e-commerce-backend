@@ -14,7 +14,7 @@ export const checkRole = (currentRole) => async (req, res, next) => {
     .exec();
 
   if (admin.is_superuser) {
-    return nect();
+    return next();
   }
 
   const { Role } = RolePermission;
