@@ -20,7 +20,6 @@ const productCategorySchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AdminUser",
