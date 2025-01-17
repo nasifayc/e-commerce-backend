@@ -140,7 +140,6 @@ export const validateOtp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  console.log("reached here");
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
