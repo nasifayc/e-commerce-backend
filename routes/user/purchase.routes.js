@@ -1,13 +1,24 @@
 import { Router } from "express";
+import verifyToken from "../../middleware/verifyToken.js";
+import {
+  purchaseProducts,
+  verifyChapaPayment,
+} from "../../controller/user/purchase.controller.js";
+import {
+  validatePurchase,
+  handleValidationErrors,
+} from "../../middleware/expressValidator.js";
 
 const router = Router();
 
-router.post("/get-purchase-history", (req, res) => {
-  console.log("get perchase history");
-});
+router.post(
+  "/purchase",
+  verifyToken,
+  validatePurchase,
+  handleValidationErrors,
+  purchaseProducts
+);
 
-router.post("/veryfy-payment", (req, res) => {
-  console.log("verify payment");
-});
+router.get("/veryfy-payment/:tx_ref", verifyChapaPayment);
 
 export default router;

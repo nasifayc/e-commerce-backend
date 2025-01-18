@@ -1,6 +1,64 @@
 import Admin from "../../model/admin.model.js";
 import fs from "fs";
 
+// Get All Admins
+export const getAllAdmins = async (req, res) => {
+  try {
+    const admins = await Admin.find().populate("roles", "role_name");
+
+    res.status(200).json({
+      success: true,
+      message: "Admins fetched successfully",
+      admins,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admins",
+      error: error.message,
+    });
+  }
+};
+
+// Create new Admin
+export const createAdmin = async (req, res) => {
+  try {
+    const { first_name, last_name, email, password, roles } = req.body;
+
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({
+        success: false,
+        message: "Admin with this email already exists",
+      });
+    }
+
+    const newAdmin = new Admin({
+      first_name,
+      last_name,
+      email,
+      password,
+      roles,
+      profile_photo: req.file?.path,
+      created_by: req.user.id,
+    });
+
+    const savedAdmin = await newAdmin.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Admin created successfully",
+      admin: savedAdmin,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to create admin",
+      error: error.message,
+    });
+  }
+};
+
 export const getAdminByID = async (req, res) => {
   try {
     const admin = await Admin.findById(req.user.id).select("-password");
@@ -27,51 +85,94 @@ export const getAdminByID = async (req, res) => {
 };
 export const updateAdmin = async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body;
-    const adminId = req.user.id;
-    const updates = {};
+    const { id } = req.params;
+    const { first_name, last_name, email, password, roles, is_active } =
+      req.body;
+    const updates = {
+      first_name,
+      last_name,
+      email,
+      roles,
+      is_active,
+      updated_by: req.user.id,
+    };
 
-    // Find admin
-    const admin = await Admin.findById(adminId);
-    if (!admin) {
-      return res.status(404).json({
-        success: false,
-        message: "Admin not found",
-      });
-    }
-
-    if (first_name) updates.first_name = first_name;
-    if (last_name) updates.last_name = last_name;
-    if (email) updates.email = email;
     if (password) {
       const salt = await bcrypt.genSalt(10);
       updates.password = await bcrypt.hash(password, salt);
     }
 
     if (req.file) {
-      if (admin.profile_photo && fs.existsSync(admin.profile_photo)) {
-        fs.unlinkSync(admin.profile_photo); // Delete previous profile photo
+      const admin = await Admin.findById(id);
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found",
+        });
       }
-      updates.profile_photo = req.file.path;
+
+      // Delete old profile photo if it exists
+      if (admin.profile_photo) {
+        const oldPhotoPath = path.join(
+          __dirname,
+          "../../uploads/profiles/",
+          admin.profile_photo
+        );
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
+
+      updates.profile_photo = req.file.filename;
     }
 
-    updates.updated_by = adminId;
+    const updatedAdmin = await Admin.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
-    const updatedAdmin = await Admin.findByIdAndUpdate(
-      adminId,
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
+    if (!updatedAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
-      message: "Profile updated successfully",
+      message: "Admin updated successfully",
       admin: updatedAdmin,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to update profile",
+      message: "Failed to update admin",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedAdmin = await Admin.findByIdAndDelete(id);
+
+    if (!deletedAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Admin deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete admin",
       error: error.message,
     });
   }

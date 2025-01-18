@@ -30,6 +30,15 @@ export const validateSignUp = [
   body("username").notEmpty().withMessage("Username is required"),
 ];
 
+export const validateAdmin = [
+  body("first_name").notEmpty().withMessage("First Name is required"),
+  body("last_name").notEmpty().withMessage("Last Name is required"),
+  body("email").isEmail().withMessage("Valid Email is required"),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long"),
+];
+
 // Validation rules for creating a product
 export const validateProduct = [
   body("name").notEmpty().withMessage("Product name is required").trim(),
@@ -97,6 +106,45 @@ export const validateCategory = [
     .optional()
     .isBoolean()
     .withMessage("isActive must be a boolean"),
+];
+
+export const validateReview = [
+  body("rating")
+    .notEmpty()
+    .withMessage("Rating is required")
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Rating must be an integer between 1 and 5"),
+  body("comment").optional().isString().withMessage("Comment must be a string"),
+];
+
+export const validatePurchase = [
+  check("products")
+    .isArray({ min: 1 })
+    .withMessage("At least one product is required."),
+  check("products.*.product").notEmpty().withMessage("Product ID is required."),
+  check("products.*.quantity")
+    .isInt({ min: 1 })
+    .withMessage("Quantity must be at least 1."),
+  check("paymentMethod")
+    .isIn(["Chapa", "Santim_Pay"])
+    .withMessage("Invalid payment method."),
+  check("shippingAddress.fullName")
+    .notEmpty()
+    .withMessage("Shipping full name is required."),
+  check("shippingAddress.addressLine1")
+    .notEmpty()
+    .withMessage("Shipping address line 1 is required."),
+  check("shippingAddress.city").notEmpty().withMessage("City is required."),
+  check("shippingAddress.state").notEmpty().withMessage("State is required."),
+  check("shippingAddress.postalCode")
+    .notEmpty()
+    .withMessage("Postal code is required."),
+  check("shippingAddress.country")
+    .notEmpty()
+    .withMessage("Country is required."),
+  check("shippingAddress.phone")
+    .isMobilePhone()
+    .withMessage("Valid phone number is required."),
 ];
 
 export const handleValidationErrors = (req, res, next) => {

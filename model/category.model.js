@@ -26,11 +26,11 @@ const productCategorySchema = mongoose.Schema(
     },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AdminUser",
+      ref: "Admin",
     },
     updated_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AdminUser",
+      ref: "Admin",
     },
   },
   { timestamps: true }

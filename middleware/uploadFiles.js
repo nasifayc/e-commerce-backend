@@ -18,6 +18,11 @@ const storage = multer.diskStorage({
         break;
     }
 
+    // Ensure folder exists
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder, { recursive: true });
+    }
+
     cb(null, folder);
   },
   filename: (req, file, cb) => {
