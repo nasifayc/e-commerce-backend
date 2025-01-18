@@ -75,6 +75,30 @@ export const validateProduct = [
   body("sku").optional().trim(),
 ];
 
+export const validateCategory = [
+  body("name")
+    .notEmpty()
+    .withMessage("Category name is required")
+    .isString()
+    .withMessage("Category name must be a string")
+    .trim()
+    .escape(),
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Description must be a string")
+    .trim()
+    .escape(),
+  body("parentCategory")
+    .optional()
+    .isMongoId()
+    .withMessage("Parent category must be a valid MongoDB ObjectId"),
+  body("isActive")
+    .optional()
+    .isBoolean()
+    .withMessage("isActive must be a boolean"),
+];
+
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

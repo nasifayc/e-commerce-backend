@@ -2,6 +2,7 @@ import Product from "../../model/product.model";
 import fs from "fs";
 import path from "path";
 import { validationResult } from "express-validator";
+import { request } from "http";
 
 // Get all products
 export const getAllProducts = async (req, res) => {
@@ -24,20 +25,12 @@ export const getAllProducts = async (req, res) => {
 
 // create new product
 export const createProduct = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: "Validation errors",
-      errors: errors.array(),
-    });
-  }
-
   const images = req.files?.map((file) => file.path);
-  const productData = { ...req.body, images };
 
   try {
+    const productData = { ...req.body, images, created_by: req.user.id };
     const product = await Product.create(productData);
+
     res.status(201).json({
       success: true,
       message: "Product created successfully",
@@ -62,15 +55,6 @@ export const createProduct = async (req, res) => {
 
 // Update a product
 export const updateProduct = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: "Validation errors",
-      errors: errors.array(),
-    });
-  }
-
   const { id } = req.params;
   const images = req.files?.map((file) => file.path);
   const updatedData = { ...req.body, ...(images.length && { images }) };

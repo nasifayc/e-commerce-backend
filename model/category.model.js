@@ -12,6 +12,10 @@ const productCategorySchema = mongoose.Schema(
       type: String,
       trim: true,
     },
+    image: {
+      type: String,
+      required: [true, "Category image is required"],
+    },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductCategory", // Self-referencing for subcategories
@@ -32,4 +36,9 @@ const productCategorySchema = mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("ProductCategory", productCategorySchema);
+const ProductCategory = mongoose.model(
+  "ProductCategory",
+  productCategorySchema
+);
+
+export default ProductCategory;

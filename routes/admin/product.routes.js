@@ -2,7 +2,10 @@ import { Router } from "express";
 import verifyToken from "../../middleware/verifyToken.js";
 import { checkRole } from "../../middleware/checkRole.js";
 import { uploadProducts } from "../../middleware/uploadProductFiles.js";
-import { validateProduct } from "../../middleware/expressValidator.js";
+import {
+  validateProduct,
+  handleValidationErrors,
+} from "../../middleware/expressValidator.js";
 import {
   getAllProducts,
   createProduct,
@@ -22,6 +25,7 @@ router.post(
   checkRole("can_create_products"),
   uploadProducts.array("images", 5),
   validateProduct,
+  handleValidationErrors,
   createProduct
 );
 
@@ -31,6 +35,7 @@ router.put(
   checkRole("can_update_products"),
   uploadProducts.array("images", 5),
   validateProduct,
+  handleValidationErrors,
   updateProduct
 );
 
