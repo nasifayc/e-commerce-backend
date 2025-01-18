@@ -1,7 +1,7 @@
 import { Router } from "express";
-import verifyToken from "../../middleware/verifyToken";
-import { checkRole } from "../../middleware/checkRole";
-import { uploadFile } from "../../middleware/uploadFiles";
+import verifyToken from "../../middleware/verifyToken.js";
+import { checkRole } from "../../middleware/checkRole.js";
+import { uploadFile } from "../../middleware/uploadFiles.js";
 import {
   createCategory,
   updateCategory,
