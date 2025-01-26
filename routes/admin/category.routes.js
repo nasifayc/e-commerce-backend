@@ -8,11 +8,11 @@ import {
   deleteCategory,
   getAllCategories,
   getCategoryById,
-} from "../../controller/admin/category.controller";
+} from "../../controller/admin/category.controller.js";
 import {
   validateCategory,
   handleValidationErrors,
-} from "../../middleware/expressValidator";
+} from "../../middleware/expressValidator.js";
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import uuid from "uuid";
+import { v4 as uuidv4 } from "uuid"; // Correct the import statement
 import Product from "../../model/product.model.js";
 import Purchase from "../../model/purchase.model.js";
 
@@ -11,7 +11,7 @@ const config = {
 
 // Generate a unique transaction reference
 const generateTxRef = () => {
-  return uuid.v4(); // Version 4 UUID
+  return uuidv4(); // Use the correct function
 };
 
 export const purchaseProducts = async (req, res) => {

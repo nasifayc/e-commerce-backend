@@ -44,3 +44,5 @@ router.get(
   checkRole("can_view_Permissions"),
   fetchPermissions
 );
+
+export default router;

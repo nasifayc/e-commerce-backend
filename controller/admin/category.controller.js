@@ -1,4 +1,4 @@
-import ProductCategory from "../../model/category.model";
+import ProductCategory from "../../model/category.model.js";
 import fs from "fs";
 import { validationResult } from "express-validator";
 

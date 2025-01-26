@@ -1,10 +1,10 @@
-import Admin from "../../model/admin.model";
+import Admin from "../../model/admin.model.js";
 import jwt from "jsonwebtoken";
-import sendEmail from "../../config/sendMail";
+import sendEmail from "../../config/sendMail.js";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../../utils/generate_token";
+} from "../../utils/generate_token.js";
 
 export const login = async (req, res) => {
   const { email, password } = req.body;

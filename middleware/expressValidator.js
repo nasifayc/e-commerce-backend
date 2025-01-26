@@ -1,4 +1,4 @@
-import { body, validationResult } from "express-validator";
+import { body, validationResult, check } from "express-validator";
 
 export const validateSignIn = [
   body("email").isEmail().withMessage("Please enter a valid email"),
