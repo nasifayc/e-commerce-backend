@@ -35,9 +35,10 @@ router.post(
   "/categories",
   verifyToken,
   checkRole("can_create_category"),
-  uploadFile.single("image"),
   validateCategory,
   handleValidationErrors,
+  uploadFile.single("image"),
+
   createCategory
 );
 
@@ -45,9 +46,10 @@ router.put(
   "/categories/:id",
   verifyToken,
   checkRole("can_update_category"),
-  uploadFile.single("image"),
   validateCategory,
   handleValidationErrors,
+  uploadFile.single("image"),
+
   updateCategory
 );
 
