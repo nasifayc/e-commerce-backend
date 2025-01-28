@@ -6,11 +6,10 @@ import adminRoute from "./admin.routes.js";
 import roleRoute from "./role.routes.js";
 
 const router = Router();
-
+router.use("/", adminRoute);
 router.use("/auth", authRoute);
 router.use("/products", productRoute);
 router.use("/categories", categoryRoute);
-router.use("/admin", adminRoute);
 router.use("/roles", roleRoute);
 
 export default router;

@@ -8,14 +8,20 @@ import {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
   try {
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      return res.status(404).json({ message: "Admin not found" });
+      return res
+        .status(404)
+        .json({
+          message:
+            "You Are Not Registered Yet. Please Contact The Help Center. Thank You",
+        });
     }
     const isMatch = await admin.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid Email or Password" });
     }
     const accessToken = generateAccessToken(admin);
     const refreshToken = generateRefreshToken(admin);

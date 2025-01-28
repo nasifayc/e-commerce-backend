@@ -5,8 +5,6 @@ const router = Router();
 
 router.post("/sign-in", login);
 
-router.post("/sign-up", (req, res) => {
-  console.log("Sign-up Admin");
-});
+// router.post("/sign-up", login);
 
 export default router;
