@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import Admin from "../../model/admin.model.js";
 import fs from "fs";
 
@@ -173,6 +174,50 @@ export const deleteAdmin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to delete admin",
+      error: error.message,
+    });
+  }
+};
+
+export const getPermissions = async (req, res) => {
+  console.log("Feching permissions...");
+  try {
+    const { id } = req.user;
+    const admin = await Admin.findById(id)
+      .populate({
+        path: "roles",
+        populate: { path: "permissions" },
+      })
+      .lean();
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    console.log(admin);
+
+    const allPermissions = admin.roles.flatMap((role) => role.permissions);
+    const uniquePermissions = Array.from(
+      new Map(
+        allPermissions.map((permission) => [
+          permission._id.toString(),
+          permission,
+        ])
+      ).values()
+    ).map((permission) => permission.code_name);
+
+    console.log("Permissions:", uniquePermissions);
+
+    res.status(200).json({
+      permissions: uniquePermissions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch permissions",
       error: error.message,
     });
   }

@@ -12,24 +12,23 @@ export const login = async (req, res) => {
   try {
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "You Are Not Registered Yet. Please Contact The Help Center. Thank You",
-        });
+      return res.status(404).json({
+        message:
+          "You Are Not Registered Yet. Please Contact The Help Center. Thank You",
+      });
     }
     const isMatch = await admin.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid Email or Password" });
     }
+    const isSuperAdmin = await admin.is_superuser;
     const accessToken = generateAccessToken(admin);
     const refreshToken = generateRefreshToken(admin);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       expiresIn: "7d",
     });
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken, isSuperAdmin });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server Error" });

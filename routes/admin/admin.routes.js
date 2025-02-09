@@ -12,6 +12,7 @@ import {
   getAdminByID,
   updateAdmin,
   deleteAdmin,
+  getPermissions,
 } from "../../controller/admin/admin.controller.js";
 
 const router = express.Router();
@@ -61,5 +62,7 @@ router.delete(
   checkRole("can_delete_admin_user"),
   deleteAdmin
 );
+
+router.get("/admins/get-permissions", verifyToken, getPermissions);
 
 export default router;
