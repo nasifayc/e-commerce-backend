@@ -2,7 +2,8 @@ import RolePermission from "../model/role.model.js";
 import Admin from "../model/admin.model.js";
 
 export const checkRole = (currentRole) => async (req, res, next) => {
-  const id = req.user._id;
+  const id = req.user.id;
+
   const admin = await Admin.findOne({ _id: id })
     .populate({
       path: "roles",
@@ -12,6 +13,9 @@ export const checkRole = (currentRole) => async (req, res, next) => {
       },
     })
     .exec();
+  if (!admin) {
+    return res.status(404).json({ success: false, message: "Admin not found" });
+  }
 
   if (admin.is_superuser) {
     return next();

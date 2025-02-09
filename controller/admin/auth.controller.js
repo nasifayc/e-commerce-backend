@@ -26,8 +26,11 @@ export const login = async (req, res) => {
     const refreshToken = generateRefreshToken(admin);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      expiresIn: "7d",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
     res.status(200).json({ accessToken, isSuperAdmin });
   } catch (error) {
     console.log(error);
