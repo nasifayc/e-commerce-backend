@@ -7,7 +7,12 @@ import { request } from "http";
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { id } = req.user;
+
+    const products = await Product.find({ created_by: id }).populate(
+      "category",
+      "name"
+    );
 
     res.status(200).json({
       success: true,
@@ -15,6 +20,7 @@ export const getAllProducts = async (req, res) => {
       products,
     });
   } catch (error) {
+    console.error("error", error.message);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve products",

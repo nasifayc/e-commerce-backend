@@ -17,15 +17,16 @@ import {
 
 const router = Router();
 
-router.get("/all", getAllProducts);
+router.get("/all", verifyToken, checkRole("can_view_products"), getAllProducts);
 
 router.post(
   "/create",
   verifyToken,
   checkRole("can_create_products"),
-  uploadProducts.array("images", 5),
+
   validateProduct,
   handleValidationErrors,
+  uploadProducts.array("images", 5),
   createProduct
 );
 
@@ -33,9 +34,10 @@ router.put(
   "/update/:id",
   verifyToken,
   checkRole("can_update_products"),
-  uploadProducts.array("images", 5),
+
   validateProduct,
   handleValidationErrors,
+  uploadProducts.array("images", 5),
   updateProduct
 );
 

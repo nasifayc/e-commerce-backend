@@ -5,7 +5,7 @@ export const generateAccessToken = (user) => {
     throw new Error("Invalid user object provided for token generation");
   }
   return jwt.sign({ id: user._id.toString() }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "7d",
   });
 };
 
