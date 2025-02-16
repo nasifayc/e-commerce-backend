@@ -18,7 +18,7 @@ const router = Router();
 
 // Routes
 router.get(
-  "/categories",
+  "/all",
   verifyToken,
   checkRole("can_view_categories"),
   getAllCategories
@@ -32,7 +32,7 @@ router.get(
 );
 
 router.post(
-  "/categories",
+  "/create",
   verifyToken,
   checkRole("can_create_category"),
   validateCategory,
@@ -43,7 +43,7 @@ router.post(
 );
 
 router.put(
-  "/categories/:id",
+  "/update/:id",
   verifyToken,
   checkRole("can_update_category"),
   validateCategory,
@@ -54,7 +54,7 @@ router.put(
 );
 
 router.delete(
-  "/categories/:id",
+  "/delete/:id",
   verifyToken,
   checkRole("can_delete_category"),
   deleteCategory

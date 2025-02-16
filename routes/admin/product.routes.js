@@ -23,7 +23,6 @@ router.post(
   "/create",
   verifyToken,
   checkRole("can_create_products"),
-
   validateProduct,
   handleValidationErrors,
   uploadProducts.array("images", 5),

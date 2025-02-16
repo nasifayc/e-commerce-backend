@@ -6,6 +6,7 @@ import { validationResult } from "express-validator";
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await ProductCategory.find().populate("parentCategory");
+
     res.status(200).json({
       success: true,
       message: "Categories retrieved successfully",
@@ -22,7 +23,10 @@ export const getAllCategories = async (req, res) => {
 
 // Create a new category
 export const createCategory = async (req, res) => {
+  console.log("createCategory");
+  console.log(req.body);
   const { name, description, parentCategory } = req.body;
+
   const image = req.file?.path;
 
   try {
