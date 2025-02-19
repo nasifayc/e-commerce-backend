@@ -32,8 +32,13 @@ export const getAllProducts = async (req, res) => {
 // create new product
 export const createProduct = async (req, res) => {
   const images = req.files?.map((file) => file.path);
-
   try {
+    if (!images) {
+      return res.status(400).json({
+        success: false,
+        message: "No images provided",
+      });
+    }
     const productData = { ...req.body, images, created_by: req.user.id };
     const product = await Product.create(productData);
 
@@ -43,6 +48,7 @@ export const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
+    console.log(error);
     if (images && images.length > 0) {
       images.forEach((image) => {
         fs.unlink(image, (err) => {
@@ -113,6 +119,7 @@ export const updateProduct = async (req, res) => {
 // Delete a product
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
+  console.log("Id To delete: " + id);
 
   try {
     const product = await Product.findById(id);
@@ -123,7 +130,6 @@ export const deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete images associated with the product
     if (product.images && product.images.length > 0) {
       product.images.forEach((image) => {
         fs.unlink(image, (err) => {
@@ -139,6 +145,7 @@ export const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({
       success: false,
       message: "Failed to delete product",

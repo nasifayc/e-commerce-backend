@@ -1,10 +1,13 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const type = req.query.type; // Expect a 'type' query parameter in the request
-    let folder = "uploads/misc/"; // Default folder for unclassified uploads
+    const type = req.query.type;
+    let folder = "uploads/misc/";
+
+    console.log("Type: " + type);
 
     switch (type) {
       case "profile":
@@ -46,5 +49,5 @@ const fileFilter = (req, file, cb) => {
 export const uploadFile = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB file size limit
+  limits: { fileSize: 2 * 1024 * 1024 },
 });

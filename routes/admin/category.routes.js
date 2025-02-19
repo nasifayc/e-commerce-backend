@@ -35,9 +35,13 @@ router.post(
   "/create",
   verifyToken,
   checkRole("can_create_category"),
+  uploadFile.single("image"),
+  (req, res, next) => {
+    console.log(req.body);
+    next();
+  },
   validateCategory,
   handleValidationErrors,
-  uploadFile.single("image"),
 
   createCategory
 );

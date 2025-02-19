@@ -5,6 +5,7 @@ import { uploadProducts } from "../../middleware/uploadProductFiles.js";
 import {
   validateProduct,
   handleValidationErrors,
+  validateTag,
 } from "../../middleware/expressValidator.js";
 import {
   getAllProducts,
@@ -23,9 +24,11 @@ router.post(
   "/create",
   verifyToken,
   checkRole("can_create_products"),
+  uploadProducts.array("images", 5),
+  validateTag,
   validateProduct,
   handleValidationErrors,
-  uploadProducts.array("images", 5),
+
   createProduct
 );
 

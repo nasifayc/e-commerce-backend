@@ -23,8 +23,6 @@ export const getAllCategories = async (req, res) => {
 
 // Create a new category
 export const createCategory = async (req, res) => {
-  console.log("createCategory");
-  console.log(req.body);
   const { name, description, parentCategory } = req.body;
 
   const image = req.file?.path;
@@ -112,6 +110,7 @@ export const deleteCategory = async (req, res) => {
 
   try {
     const category = await ProductCategory.findById(id);
+    console.log("Deleted category: ", category);
 
     if (!category) {
       return res.status(404).json({

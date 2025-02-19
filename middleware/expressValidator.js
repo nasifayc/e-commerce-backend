@@ -40,6 +40,16 @@ export const validateAdmin = [
 ];
 
 // Validation rules for creating a product
+export const validateTag = async (req, res, next) => {
+  if (req.body.tags && typeof req.body.tags === "string") {
+    try {
+      req.body.tags = JSON.parse(req.body.tags);
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid tags format" });
+    }
+  }
+  next();
+};
 export const validateProduct = [
   body("name").notEmpty().withMessage("Product name is required").trim(),
   body("description").optional().trim(),
@@ -88,24 +98,29 @@ export const validateCategory = [
   body("name")
     .notEmpty()
     .withMessage("Category name is required")
+    .bail()
     .isString()
     .withMessage("Category name must be a string")
     .trim()
     .escape(),
+
   body("description")
     .optional()
     .isString()
     .withMessage("Description must be a string")
     .trim()
     .escape(),
+
   body("parentCategory")
     .optional()
     .isMongoId()
     .withMessage("Parent category must be a valid MongoDB ObjectId"),
+
   body("isActive")
     .optional()
     .isBoolean()
-    .withMessage("isActive must be a boolean"),
+    .withMessage("isActive must be a boolean")
+    .toBoolean(),
 ];
 
 export const validateReview = [
@@ -149,6 +164,7 @@ export const validatePurchase = [
 
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
+  console.log("validation error: ");
   if (!errors.isEmpty()) {
     console.log(errors.array());
     return res.status(400).json({ errors: errors.array() });
