@@ -5,6 +5,7 @@ import fs from "fs";
 // Get All Admins
 export const getAllAdmins = async (req, res) => {
   try {
+    console.log("Getting Admins...");
     const admins = await Admin.find().populate("roles", "role_name");
 
     res.status(200).json({
@@ -13,6 +14,7 @@ export const getAllAdmins = async (req, res) => {
       admins,
     });
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({
       success: false,
       message: "Failed to fetch admins",

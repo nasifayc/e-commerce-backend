@@ -30,9 +30,9 @@ router.post(
   "/admins",
   verifyToken,
   checkRole("can_create_admin_user"),
+  uploadFile.single("image"),
   validateAdmin,
   handleValidationErrors,
-  uploadFile.single("image"),
   createAdmin
 );
 
@@ -49,9 +49,9 @@ router.put(
   "/admins/:id",
   verifyToken,
   checkRole("can_update_admin_user"),
+  uploadFile.single("image"),
   validateAdmin,
   handleValidationErrors,
-  uploadFile.single("image"),
   updateAdmin
 );
 

@@ -144,14 +144,21 @@ export const deleteRole = async (req, res) => {
 
 export const fetchPermissions = async (req, res) => {
   try {
-    if (req.user.is_superuser) {
-      const permissions = await Permission.find();
-      return res.status(200).json({
-        success: true,
-        message: "All permissions fetched successfully",
-        permissions,
+    let permissions;
+    const admin = await Admin.findById(req.user.id);
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
       });
+    }
+
+    if (admin.is_superuser) {
+      console.log("Super User");
+      permissions = await Permission.find();
     } else {
+      console.log("Admin User");
       const admin = await Admin.findById(req.user.id).populate({
         path: "roles",
         populate: {
@@ -166,16 +173,12 @@ export const fetchPermissions = async (req, res) => {
         });
       }
 
-      const allowedPermissions = admin.roles.flatMap(
-        (role) => role.permissions
-      );
-
-      res.status(200).json({
-        success: true,
-        message: "Allowed permissions fetched successfully",
-        permissions: allowedPermissions,
-      });
+      permissions = admin.roles.flatMap((role) => role.permissions);
     }
+
+    res.status(200).json({
+      permissions,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
