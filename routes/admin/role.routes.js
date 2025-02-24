@@ -19,19 +19,19 @@ router.get("/all", verifyToken, checkRole("can_view_roles"), getRoles);
 router.get("/roles/:id", verifyToken, checkRole("can_view_roles"), getRoleByID);
 
 // Create Role
-router.post(
-  "/create-role",
-  verifyToken,
-  checkRole("can_create_role"),
-  createRole
-);
+router.post("/create", verifyToken, checkRole("can_create_role"), createRole);
 
 // Update role
-router.put("/roles/:id", verifyToken, checkRole("can_update_role"), updateRole);
+router.put(
+  "/update/:id",
+  verifyToken,
+  checkRole("can_update_role"),
+  updateRole
+);
 
 // Delete role
 router.delete(
-  "/roles/:id",
+  "/delete/:id",
   verifyToken,
   checkRole("can_delete_role"),
   deleteRole

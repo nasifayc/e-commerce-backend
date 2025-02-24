@@ -155,18 +155,59 @@ export const updateAdmin = async (req, res) => {
   }
 };
 
-export const deleteAdmin = async (req, res) => {
+export const getCurrentAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
+    const admin = await Admin.findById(id).select("-password");
 
-    const deletedAdmin = await Admin.findByIdAndDelete(id);
-
-    if (!deletedAdmin) {
+    if (!admin) {
       return res.status(404).json({
         success: false,
         message: "Admin not found",
       });
     }
+
+    res.status(200).json({
+      admin,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admin profile",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    if (userId === id) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot delete yourself",
+      });
+    }
+
+    const admin = await Admin.findById(id);
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    if (admin.profile_photo) {
+      fs.unlink(admin.profile_photo, (err) => {
+        if (err) console.error("Failed to delete category image", err);
+      });
+    }
+
+    await admin.deleteOne();
 
     res.status(200).json({
       success: true,

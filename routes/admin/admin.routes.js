@@ -11,6 +11,7 @@ import {
   createAdmin,
   getAdminByID,
   updateAdmin,
+  getCurrentAdmin,
   deleteAdmin,
   getPermissions,
 } from "../../controller/admin/admin.controller.js";
@@ -35,6 +36,8 @@ router.post(
   handleValidationErrors,
   createAdmin
 );
+
+router.get("/get-admin", verifyToken, getCurrentAdmin);
 
 // Route to get an admin by ID
 router.get(

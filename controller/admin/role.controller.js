@@ -4,10 +4,8 @@ const { Permission, Role } = RP;
 
 export const getRoles = async (req, res) => {
   try {
-    const roles = await Role.find().populate(
-      "permissions",
-      "code_name description"
-    );
+    const roles = await Role.find().populate("permissions");
+    console.log(roles);
     res.status(200).json({
       success: true,
       message: "Roles fetched successfully",
