@@ -66,6 +66,6 @@ router.delete(
   deleteAdmin
 );
 
-router.get("/admins/get-permissions", verifyToken, getPermissions);
+router.get("/adminPermissions", verifyToken, getPermissions);
 
 export default router;

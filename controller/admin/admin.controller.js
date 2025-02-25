@@ -1,5 +1,7 @@
 import { populate } from "dotenv";
 import Admin from "../../model/admin.model.js";
+import RP from "../../model/role.model.js";
+const { Permission } = RP;
 import fs from "fs";
 
 // Get All Admins
@@ -64,6 +66,7 @@ export const createAdmin = async (req, res) => {
 
 export const getAdminByID = async (req, res) => {
   try {
+    console.log("Things Are coming here........");
     const admin = await Admin.findById(req.user.id).select("-password");
 
     if (!admin) {
@@ -240,7 +243,16 @@ export const getPermissions = async (req, res) => {
       });
     }
 
-    console.log(admin);
+    if (admin.is_superuser) {
+      const per = await Permission.find();
+      const codeName = per.map((p) => p.code_name);
+
+      return res.status(200).json({
+        permissions: codeName,
+      });
+    }
+
+    // console.log(admin);
 
     const allPermissions = admin.roles.flatMap((role) => role.permissions);
     const uniquePermissions = Array.from(
@@ -252,7 +264,7 @@ export const getPermissions = async (req, res) => {
       ).values()
     ).map((permission) => permission.code_name);
 
-    console.log("Permissions:", uniquePermissions);
+    // console.log("Permissions:", uniquePermissions);
 
     res.status(200).json({
       permissions: uniquePermissions,
