@@ -95,7 +95,7 @@ const productSchema = mongoose.Schema(
     },
     sku: {
       type: String, // Stock Keeping Unit
-      unique: true,
+      // unique: true,
     },
   },
   { timestamps: true }
