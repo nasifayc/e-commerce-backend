@@ -5,7 +5,7 @@ const { Permission, Role } = RP;
 export const getRoles = async (req, res) => {
   try {
     const roles = await Role.find().populate("permissions");
-    console.log(roles);
+    // console.log(roles);
     res.status(200).json({
       success: true,
       message: "Roles fetched successfully",
@@ -116,6 +116,7 @@ export const updateRole = async (req, res) => {
 
 export const deleteRole = async (req, res) => {
   try {
+    console.log(req.body);
     const role = await Role.findById(req.params.id);
 
     if (!role) {
@@ -125,8 +126,7 @@ export const deleteRole = async (req, res) => {
       });
     }
 
-    await role.remove();
-
+    await role.deleteOne();
     res.status(200).json({
       success: true,
       message: "Role deleted successfully",

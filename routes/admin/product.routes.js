@@ -25,6 +25,15 @@ router.post(
   verifyToken,
   checkRole("can_create_products"),
   uploadProducts.array("images", 5),
+  async (req, res, next) => {
+    try {
+      const imageUrls = req.files.map((file) => file.path);
+      req.body.images = imageUrls;
+      next();
+    } catch (e) {
+      res.status(500).json({ error: "Image upload failed" });
+    }
+  },
   validateTag,
   validateProduct,
   handleValidationErrors,

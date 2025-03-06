@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { validationResult } from "express-validator";
 import { request } from "http";
+import cloudinary from "../../config/cloudinary.js";
 
 // Get all products
 export const getAllProducts = async (req, res) => {
@@ -31,7 +32,7 @@ export const getAllProducts = async (req, res) => {
 
 // create new product
 export const createProduct = async (req, res) => {
-  const images = req.files?.map((file) => file.path);
+  const { images } = req.body;
   try {
     if (!images) {
       return res.status(400).json({
@@ -50,10 +51,14 @@ export const createProduct = async (req, res) => {
   } catch (error) {
     console.log(error);
     if (images && images.length > 0) {
-      images.forEach((image) => {
-        fs.unlink(image, (err) => {
-          if (err) console.error(`Failed to delete image: ${image}`, err);
-        });
+      images.forEach(async (image) => {
+        const publicId = image.split("/").pop().split(".")[0]; // Extract public ID
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log(`Deleted image: ${image}`);
+        } catch (err) {
+          console.error(`Failed to delete image: ${image}`, err);
+        }
       });
     }
 
@@ -80,12 +85,15 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    // If new images are provided, delete the old ones
     if (images && product.images.length > 0) {
-      product.images.forEach((image) => {
-        fs.unlink(image, (err) => {
-          if (err) console.error(`Failed to delete image: ${image}`, err);
-        });
+      product.images.forEach(async (image) => {
+        const publicId = image.split("/").pop().split(".")[0]; // Extract public ID
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log(`Deleted image: ${image}`);
+        } catch (err) {
+          console.error(`Failed to delete image: ${image}`, err);
+        }
       });
     }
 
@@ -101,10 +109,14 @@ export const updateProduct = async (req, res) => {
     });
   } catch (error) {
     if (images && images.length > 0) {
-      images.forEach((image) => {
-        fs.unlink(image, (err) => {
-          if (err) console.error(`Failed to delete image: ${image}`, err);
-        });
+      images.forEach(async (image) => {
+        const publicId = image.split("/").pop().split(".")[0];
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log(`Deleted image: ${image}`);
+        } catch (err) {
+          console.error(`Failed to delete image: ${image}`, err);
+        }
       });
     }
 
@@ -119,7 +131,6 @@ export const updateProduct = async (req, res) => {
 // Delete a product
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  console.log("Id To delete: " + id);
 
   try {
     const product = await Product.findById(id);
@@ -131,10 +142,19 @@ export const deleteProduct = async (req, res) => {
     }
 
     if (product.images && product.images.length > 0) {
-      product.images.forEach((image) => {
-        fs.unlink(image, (err) => {
-          if (err) console.error(`Failed to delete image: ${image}`, err);
-        });
+      product.images.forEach(async (image) => {
+        const publicId = image.split("/").pop().split(".")[0];
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+          console.log(`Deleted image: ${image}`);
+        } catch (err) {
+          console.error(`Failed to delete image: ${image}`, err);
+          return res.status(404).json({
+            success: false,
+            message: "Failed to delete image from cloudinary",
+            error: err.message,
+          });
+        }
       });
     }
 

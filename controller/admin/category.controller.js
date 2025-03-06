@@ -1,6 +1,7 @@
 import ProductCategory from "../../model/category.model.js";
 import fs from "fs";
 import { validationResult } from "express-validator";
+import cloudinary from "../../config/cloudinary.js";
 
 // Get all categories
 export const getAllCategories = async (req, res) => {
@@ -91,11 +92,6 @@ export const updateCategory = async (req, res) => {
       category,
     });
   } catch (error) {
-    if (image) {
-      fs.unlink(image, (err) => {
-        if (err) console.error("Failed to delete uploaded image", err);
-      });
-    }
     res.status(500).json({
       success: false,
       message: "Failed to update category",
@@ -120,9 +116,8 @@ export const deleteCategory = async (req, res) => {
     }
 
     if (category.image) {
-      fs.unlink(category.image, (err) => {
-        if (err) console.error("Failed to delete category image", err);
-      });
+      const publicId = category.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`categories/${publicId}`);
     }
 
     await category.deleteOne();

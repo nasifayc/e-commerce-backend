@@ -1,8 +1,7 @@
-import { populate } from "dotenv";
+import cloudinary from "../../config/cloudinary.js";
 import Admin from "../../model/admin.model.js";
 import RP from "../../model/role.model.js";
 const { Permission } = RP;
-import fs from "fs";
 
 // Get All Admins
 export const getAllAdmins = async (req, res) => {
@@ -119,17 +118,22 @@ export const updateAdmin = async (req, res) => {
 
       // Delete old profile photo if it exists
       if (admin.profile_photo) {
-        const oldPhotoPath = path.join(
-          __dirname,
-          "../../uploads/profiles/",
-          admin.profile_photo
-        );
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
+        const publicId = admin.profile_photo.split("/").pop().split(".")[0];
+
+        try {
+          await cloudinary.uploader.destroy(`profiles/${publicId}`);
+          console.log(
+            "Old profile photo deleted successfully from Cloudinary."
+          );
+        } catch (error) {
+          console.error(
+            "Failed to delete old profile photo from Cloudinary:",
+            error
+          );
         }
       }
 
-      updates.profile_photo = req.file.filename;
+      updates.profile_photo = req.file?.path;
     }
 
     const updatedAdmin = await Admin.findByIdAndUpdate(id, updates, {
@@ -205,8 +209,20 @@ export const deleteAdmin = async (req, res) => {
     }
 
     if (admin.profile_photo) {
-      fs.unlink(admin.profile_photo, (err) => {
-        if (err) console.error("Failed to delete category image", err);
+      const publicId = admin.profile_photo.split("/").pop().split(".")[0];
+
+      cloudinary.uploader.destroy(`profiles/${publicId}`, (error, result) => {
+        if (error) {
+          console.error(
+            "Failed to delete profile photo from Cloudinary:",
+            error
+          );
+        } else {
+          console.log(
+            "Profile photo deleted successfully from Cloudinary:",
+            result
+          );
+        }
       });
     }
 

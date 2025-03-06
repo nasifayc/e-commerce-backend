@@ -1,40 +1,34 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const type = req.query.type;
-    let folder = "uploads/misc/";
-
-    console.log("Type: " + type);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const type = req.query.type || "misc";
+    let folder = "misc";
 
     switch (type) {
       case "profile":
-        folder = "uploads/profiles/";
+        folder = "profiles";
         break;
       case "category":
-        folder = "uploads/categories/";
-        break;
-      // Add other cases as needed
-      default:
+        folder = "categories";
         break;
     }
 
-    // Ensure folder exists
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder, { recursive: true });
-    }
-
-    cb(null, folder);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname); // Get the file extension
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`); // Example: profile-1679945698123.jpg
+    return {
+      folder,
+      allowed_formats: ["jpg", "jpeg", "png"],
+      public_id: `${file.fieldname}-${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}`, // Unique filename
+      transformation: [{ width: 500, height: 500, crop: "limit" }],
+    };
   },
 });
-
 // File filter for validating image types
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
@@ -45,7 +39,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Dynamic multer middleware
 export const uploadFile = multer({
   storage,
   fileFilter,
