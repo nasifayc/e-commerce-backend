@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: node-app
+    env: docker
+    repo: https://github.com/nasifayc/e-commerce-backend
+    region: oregon
+    branch: main
+    rootDir: /
+    autoDeploy: true
